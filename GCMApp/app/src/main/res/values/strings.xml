@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Softclouds Telematics</string>
+    <string name="gcm_defaultSenderIdMain">870962600584</string>
+
+    <string name="gcm_send_message">Token retrieved!</string>
+
+
+
+    <string name="registering_message">Generating InstanceID token...</string>
+
+    <string name="token_error_message">An error occurred while either fetching the InstanceID token,
+        sending the fetched token to the server or subscribing to the PubSub topic. Please try
+        running the App again.</string>
+
+
+</resources>

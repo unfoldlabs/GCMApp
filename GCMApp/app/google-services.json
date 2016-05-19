@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "870962600584",
+    "project_id": "unfoldauto"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870962600584:android:ae2a9024eca73fb5",
+        "android_client_info": {
+          "package_name": "com.softclouds.gcmapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT1ac86xAzxOz9cD8RoiU7yW2Nu4jwFCQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

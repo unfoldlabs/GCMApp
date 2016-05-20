@@ -9,12 +9,9 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -24,9 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.softclouds.gcmapp.utility.Mail;
-import com.softclouds.gcmapp.utility.Utility;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,7 +92,7 @@ public class MainActivity extends Activity {
             }
         };
 
-       // Utility.postMethod("davidv@softclouds.com", "sending token here", this);
+
     }
 
     private boolean checkPlayServices() {

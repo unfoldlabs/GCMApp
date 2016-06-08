@@ -62,6 +62,8 @@ public class RegistrationIntentService extends IntentService {
         // if registration sent was successful, store a boolean that indicates whether the generated token has been sent to server
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+        //this has to be implemented later on as the token will only last about 6 months. A call to Sieble
+        //should be donde here.
     }
 
     private void subscribeTopics(String token) throws IOException {
@@ -70,4 +72,5 @@ public class RegistrationIntentService extends IntentService {
             pubSub.subscribe(token, "/topics/" + topic, null);
         }
     }
+    //GPSTPYEYBSTN
 }

@@ -8,13 +8,26 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.SslError;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.view.Gravity;
 import android.view.View;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +46,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener{
 
     boolean gps = false;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -52,6 +65,12 @@ public class MainActivity extends Activity {
     private CheckBox resgistration_sieble_complete;
     private boolean booleanVINnumber = true;
     static String POSTURL = "http://httpbin.org/post";
+    private String vin_str = "";
+    private DrawerLayout drawerLayout;
+    private ListView listview;
+    private String[] menu;
+    private ActionBarDrawerToggle drawerlistener;
+    private boolean error_connecting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +89,37 @@ public class MainActivity extends Activity {
         tokenSent = (CheckBox) findViewById(R.id.siebel);
         resgistration_sieble_complete = (CheckBox) findViewById(R.id.siebelcomplete);
 
+        View header = getLayoutInflater().inflate(R.layout.header, null);
+        menu = getResources().getStringArray(R.array.menu_items);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        listview = (ListView)findViewById(R.id.left_drawer);
+        listview.addHeaderView(header);
+        listview.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menu));
 
+        //addHeaderView is to add custom content into first row
+
+        listview.setOnItemClickListener(this);
+
+      /*  drawerlistener = new ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open,R.string.drawer_close){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+
+                Toast.makeText(MainActivity.this, "Close", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
+                Toast.makeText(MainActivity.this, "Open", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        drawerLayout.setDrawerListener(drawerlistener);*/
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -84,6 +133,12 @@ public class MainActivity extends Activity {
                     registerCheckbox.setChecked(true);
                     tokenRetrieved.setChecked(true);
 
+                    try {
+                        postMethod();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
 
                 } else {
                     mInformationTextView.setText(getString(R.string.token_error_message));
@@ -91,31 +146,36 @@ public class MainActivity extends Activity {
                 }
             }
         };
-
+        //sendToken();
 
     }
 
     private boolean checkPlayServices() {
-        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-        int result = googleAPI.isGooglePlayServicesAvailable(this);
+       try {
+           GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+           int result = googleAPI.isGooglePlayServicesAvailable(this);
 
-        if(result != ConnectionResult.SUCCESS) {
+           if (result != ConnectionResult.SUCCESS) {
 
-            if(googleAPI.isUserResolvableError(result)) {
-                googleAPI.getErrorDialog(this, result,
-                        9000).show(); //9000 int
-            }
-            Toast.makeText(this,"Please install Google Play Services", Toast.LENGTH_LONG).show();
+               if (googleAPI.isUserResolvableError(result)) {
+                   googleAPI.getErrorDialog(this, result,
+                           9000).show(); //9000 int
+               }
+               Toast.makeText(this, "Please install Google Play Services", Toast.LENGTH_LONG).show();
 
-            return false;
-        }
-        return true;
+               return false;
+           }
+       }
+           catch (Exception e){
+               e.printStackTrace();
+           }
+           return true;
     }
 //Fire registration service
     public void register(View v){
         gps = checkPlayServices();
 
-        String vin_str = "" + editTextVIN.getText().toString();
+        vin_str = "" + editTextVIN.getText().toString();
         System.out.println(vin_str);
 
 
@@ -129,122 +189,20 @@ public class MainActivity extends Activity {
         else if (gps) {
             mRegistrationProgressBar.setVisibility(ProgressBar.VISIBLE);
             // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-            startService(intent);
-            System.out.println("result ---- : " + gps);
-
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-            sharedPreferences.edit().putString("messages", "Messages").apply();
-
-            //sendToken();
-            postMethod();
-
-        }
-    }
-
-    private class AsyncJsonSender extends AsyncTask<Void, Void, Void>
-    {
-        private String vin_str = "";
-        private String token_str = "";
-        private boolean booleanVINnumber = true;
-        private int responseCode;
-
-
-        @Override
-        protected void onPreExecute() {
-
-            super.onPreExecute();
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-            token_str = sharedPreferences.getString(GCM_TOKEN, NO_GCM_TOKEN);
-
-            //get vin number
-            vin_str = "" + editTextVIN.getText().toString();
-
-
-            if(vin_str == "") {
-                booleanVINnumber = false;
-                System.out.println("Getting here");
-                Toast.makeText(MainActivity.this, "Please enter a valid VIN#", Toast.LENGTH_SHORT).show();
-                vin_str = "No VIN# provided";
-                return;
-            }
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-          //send token and vin to naresh
-            System.out.println("Token: " + token_str);
-            System.out.println("VIN#: " + vin_str);
-
             try {
-                URL requestUrl = new URL(POSTURL);
-                HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
-
-                connection.setDoOutput(true);
-                connection.setDoInput(true);
-
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.setRequestMethod("POST");
-
-                JSONObject data = new JSONObject();
-                data.put("token", token_str);
-                data.put("vin", vin_str);
-
-                // sending data & specifying the encoding utf-8
-                OutputStream os = connection.getOutputStream();
-                os.write(data.toString().getBytes("UTF-8"));
-                os.close();
-
-                // display what returns the POST request
-                StringBuilder sb = new StringBuilder();
-                responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader br = new BufferedReader(
-                            new InputStreamReader(
-                                    connection.getInputStream(), "utf-8"));
-                    String line = null;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line + "\n");
-                    }
-                    br.close();
-                    System.out.println("Server Response: " + sb);
-
-                } else {
-
-                }
-
-            } catch (MalformedURLException e) {
-                System.out.println("Error processing URL 4" + e);
-            } catch (IOException e) {
-                System.out.println("Error connecting to Host 5" + e);
-            } catch (JSONException e) {
-                System.out.println("Error handling JSON Object 6" + e);
+                Intent intent = new Intent(this, RegistrationIntentService.class);
+                startService(intent);
+                System.out.println("result ---- : " + gps);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                sharedPreferences.edit().putString("messages", "Messages").apply();
             }
-            return null;
+            catch (Exception e){
+                e.printStackTrace();
+            }
 
         }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            if (responseCode == 200) {
-                //success
-                System.out.println("Staus: " + responseCode +" OK");
-            }
-
-            if(booleanVINnumber) {
-               // Toast.makeText(MainActivity.this, "Token Sent to Email", Toast.LENGTH_LONG).show();
-                tokenSent.setChecked(true);
-                resgistration_sieble_complete.setChecked(true);
-                messageWaitingTextView.setVisibility(View.VISIBLE);
-            }
-        }
-
     }
+
 
     public void seeMessages(View v){
 
@@ -261,29 +219,105 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void sendToken(){
-        new AsyncJsonSender().execute();
-        //ex: public void sendEmail(View v)
-    }
-
     public boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager
                 .getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void postMethod() {
 
         //String android_id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         if (isNetworkAvailable()) {
-            new AsyncJsonSender().execute();
+            //new AsyncXMLSender().execute();
+            WebView webView = (WebView) findViewById(R.id.webView1);
+            webView.getSettings().setJavaScriptEnabled(true);
+
+            webView.setWebViewClient(new WebViewClient() {
+
+
+                @Override
+                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                    Toast.makeText(MainActivity.this, "Connectivity Error. Failed to connect to Siebel" + description, Toast.LENGTH_SHORT).show();
+                    error_connecting = true;
+                }
+
+                @Override
+                public void onReceivedHttpError(
+                        WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+                    Toast.makeText(MainActivity.this, "HTTP Connectivity Error. Failed to connect to Siebel" + errorResponse, Toast.LENGTH_SHORT).show();
+                    error_connecting = true;
+                }
+
+                @Override
+                public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                    Toast.makeText(MainActivity.this, "SSL Connectivity Error. Failed to connect to Siebel" + error, Toast.LENGTH_SHORT).show();
+                    error_connecting = true;
+                }
+
+            });
+
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            String token_str = sharedPreferences.getString(GCM_TOKEN, NO_GCM_TOKEN);
+
+
+            String req = "";
+
+            req += "http://70.164.113.90/eai_enu/start.swe?SWEExtSource=apple&SWEExtCmd=Execute&UserName=sadmin&Password=softclouds15&SWEExtData=<?xml version=\"1.0\" encoding=\"UTF-8\"?><?Siebel-Property-Set EscapeNames=\"false\"?><SiebelMessage MessageId=\"1-B9L\" MessageType=\"Integration Object\" IntObjectName=\"IOT Auto Vehicle\" IntObjectFormat=\"Siebel Hierarchical\" ><ListOfIotAutoVehicle ><AutoVehicle ><AndroidAppKey >";
+
+            req += token_str;
+
+            req += "</AndroidAppKey ><AndroidServerKey >";
+
+            req += getResources().getString(R.string.server_key);
+
+            req += "</AndroidServerKey ><ProductId >0V-1CFCZL</ProductId ><SerialNumber >";
+
+            req += vin_str;
+
+            req += "</SerialNumber ></AutoVehicle ></ListOfIotAutoVehicle ></SiebelMessage >";
+
+            webView.loadUrl(req);
+
+            new CountDownTimer(3000, 1000) {
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                public void onFinish() {
+                    if(!error_connecting){
+                        tokenSent.setChecked(true);
+                        resgistration_sieble_complete.setChecked(true);
+                        messageWaitingTextView.setVisibility(View.VISIBLE);
+                    }
+                }
+            }.start();
 
         } else {
             Toast.makeText(this, "No Network connectivity!", Toast.LENGTH_LONG).show();
         }
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        //Toast.makeText(this, menu[position], Toast.LENGTH_SHORT).show();
+        if (position == 2) {
+            Intent intent = new Intent(this, AboutUS.class);
+            startActivity(intent);
+        }
+        else if(position == 1){
+            Intent intent = new Intent(this, Instructions.class);
+            startActivity(intent);
+        }
+    }
+
+    public void menu(View v){
+        drawerLayout.openDrawer(Gravity.LEFT); //Edit Gravity.End need API 14
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -297,5 +331,7 @@ public class MainActivity extends Activity {
         super.onPause();
 
     }
+
+    //GPSTPYEYBSTN
 
 }

@@ -7,18 +7,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.softclouds.gcmapp.utility.CustomList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MessageActivity extends ListActivity {
+public class MessageActivity extends Activity {
 
     private String value;
-    private ArrayList <String> array_of_messages;
+    ListView list;
+    ArrayList<String> items_list = new ArrayList<>();
     public static final String SEPARATE_MESSAGE = "DBV12261967";
 
     @Override
@@ -31,18 +35,34 @@ public class MessageActivity extends ListActivity {
             value = bundle.getString("Message");
             //Toast.makeText(this, value, Toast.LENGTH_SHORT).show();
 
-            array_of_messages = convertToArray(value);
+            items_list = convertToArray(value);
         }
 
+        CustomList adapter = new
+                CustomList(MessageActivity.this, items_list);
+        list=(ListView)findViewById(R.id.listas);
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                //Toast.makeText(MessageActivity.this, "You Clicked at " + items_list.get(position).toString(), Toast.LENGTH_SHORT).show();
+                if(position != 0){
+                    //Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getApplicationContext(), SingleMessage.class);
+                    intent.putExtra("SingleMessage", items_list.get(position).toString());
+                    startActivity(intent);
+                }
+
+            }
+        });
 
 
-       // String[] values = new String[] {value};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, array_of_messages);
-        setListAdapter(adapter);
+
     }
 
-    @Override
+    /*@Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         String item = (String) getListAdapter().getItem(position);
 
@@ -53,7 +73,7 @@ public class MessageActivity extends ListActivity {
             intent.putExtra("SingleMessage", item);
             startActivity(intent);
         }
-    }
+    }*/
 
     private ArrayList<String> convertToArray(String string) {
 
@@ -66,4 +86,5 @@ public class MessageActivity extends ListActivity {
         super.onPause();
         finish();
     }
+    //GPSTPYEYBSTN
 }

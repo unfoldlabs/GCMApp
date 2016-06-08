@@ -1,9 +1,18 @@
 <resources>
     <string name="app_name">Softclouds Telematics</string>
     <string name="gcm_defaultSenderIdMain">870962600584</string>
+    <string name="server_key">AIzaSyCAKiYUpCP5NS3awGPvv2EAOd85B5XRKo8</string>
+
+    <string name="about_us">Version:1.01 dated June 3, 2016. All Rights Reserved.\n\nContact ashok@softclouds.com for any questions or comments.\n\nDisclaimer – This is a Proof Of Concept Application only. SoftClouds is not responsible for any issues on this app.
+</string>
+
+    <string name="menu_page1">Welcome to SoftClouds Telematics Application.\n\nThis is a proof of concept of a consumer application that will be distributed by the automotive OEM.\n\nThe automotive OEM will be collecting data on the status of the car into its IoT cloud and will communicate with this SoftClouds Telematics application based on rules set at its SIEBEL system. </string>
+    <string name="menu_page3">For demo purposes, the Car is emulated by the android application SoftClouds Car.\n\nSoftClouds Car app transmits all car relevant telematics data points into the Oracle IoT cloud.\n\n
+Oracle IoT Cloud collects data, stores it in local database and will send processed data to the SIEBEL CRM of automotive OEM based on rules.\n\nSIEBEL CRM of automotive OEM will communicate to the SoftClouds Telematics consumer application based on rules. Rules could be : Time for oil change, Time to change tires, Upsell warranty, Car Sales programs, etc.
+</string>
+
 
     <string name="gcm_send_message">Token retrieved!</string>
-
 
 
     <string name="registering_message">Generating InstanceID token...</string>
@@ -11,6 +20,14 @@
     <string name="token_error_message">An error occurred while either fetching the InstanceID token,
         sending the fetched token to the server or subscribing to the PubSub topic. Please try
         running the App again.</string>
+    <string-array name="menu_items">
+        <item>Tutorial</item>
+        <item>About us</item>
+
+    </string-array>
+
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 
 
 </resources>

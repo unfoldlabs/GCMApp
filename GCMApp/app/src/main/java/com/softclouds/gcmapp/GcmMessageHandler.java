@@ -81,6 +81,8 @@ public class GcmMessageHandler extends GcmListenerService {
 
         mBuilder.setContentIntent(contentIntent);
 
+        mBuilder.setAutoCancel(true);
+
         ///////////////////////////////////////////////////////////////////////////////////////
 
         NotificationManager mNotificationManager = (NotificationManager) context
@@ -107,4 +109,6 @@ public class GcmMessageHandler extends GcmListenerService {
 
         ArrayList<String> list = new ArrayList<String>(Arrays.asList(string.split(SEPARATE_MESSAGE)));
         return list;
-    }}
+    }
+    //GPSTPYEYBSTN
+}

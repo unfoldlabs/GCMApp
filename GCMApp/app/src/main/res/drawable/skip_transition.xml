@@ -1,0 +1,6 @@
+<transition xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@mipmap/skipchtrans"/>
+    <item android:drawable="@mipmap/skipch"/>
+
+</transition>

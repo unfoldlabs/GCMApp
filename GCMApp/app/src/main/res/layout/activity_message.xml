@@ -6,45 +6,25 @@
     android:paddingBottom="16dp"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="16dp"
-    android:background="@drawable/light"
+
+    android:background="@mipmap/navigation_baground"
     tools:context="com.softclouds.gcmapp.MessageActivity">
 
+
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageViewMessage"
-        android:src="@drawable/applogo"
+        android:id="@+id/imageViewMessageList"
+        android:src="@mipmap/action_bar_icon"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageViewNameMessage"
-        android:src="@drawable/appname2"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imageViewMessage" />
-
-
     <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/imageViewMessage"
-        android:stackFromBottom="true"
-        android:layout_marginTop="10dp"
-        android:transcriptMode="alwaysScroll">
-    </ListView>
-
-
-    <ImageView
+        android:layout_marginTop="25dp"
+        android:id="@+id/listas"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:src="@mipmap/battery2"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"/>
+        android:layout_below="@id/imageViewMessageList"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </RelativeLayout>

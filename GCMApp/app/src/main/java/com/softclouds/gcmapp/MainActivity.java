@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Gravity;
 import android.view.View;
 import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -258,7 +259,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 }
 
             });
-
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
             String token_str = sharedPreferences.getString(GCM_TOKEN, NO_GCM_TOKEN);
